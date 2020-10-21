@@ -1,0 +1,12 @@
+- name: Run my new module
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: try new module
+      rhtr.my_collection.my_module:
+      register: my_var
+
+    - name: display output to terminal window
+      debug:
+        var: my_var
