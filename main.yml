@@ -1,12 +1,13 @@
-- name: Run my new module
+- name: Run my new module in my new collection
   hosts: localhost
   gather_facts: false
 
   tasks:
-    - name: try new module
+    - name: Run my_module via a collection
       rhtr.my_collection.my_module:
-      register: my_var
+        data: hello rhtr
+      register: r_my_module
 
     - name: display output to terminal window
       debug:
-        var: my_var
+        var: r_my_module

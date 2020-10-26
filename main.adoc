@@ -1,0 +1,304 @@
+== Collections 
+
+
+=== Introduction
+
+
+=== Overview
+
+* What
+
+=== Getting Started 
+
+
+
+=== Prerequisites
+
+
+
+=== Explore your control node
+
+Your lab environments consists off
+
+// Insert image
+
+bastion
+n Virtual Env
+
+You will work in an Ansible *Service Account* `devops` which has sudo privileges
+
+Switch to your account.
+
+
+
+Take a moment to customize your environment e.g. setup `vim`, install your favorite editor etc:
+
+* Name sudo yum install nano mc emacs
+
+Alternatively use the VisualStudio Code Server in your email with in-built terminal support.
+
+
+=== Explore your environment
+
+Take a moment to explore your environment and setup. 
+You are on a minimally configured Red Linux 7 control node, like many real world customers.
+
+[source,sh]
+----
+ansible all --list-hosts
+----
+.Sample Output
+[source,texinfo]
+----
+
+  hosts (5):
+    app1.example.com
+    app2.example.com
+    appdb1.example.com
+    frontend1.example.com
+    tower.example.com
+----
+
+
+For our lab we are going to run
+
+
+
+=== Make a project folder
+
+mkdir rhtr-lab
+         cd rhtr-lab
+
+=== Setup your environment
+
+Before we install the latest ansible take a look at the existing ansible environment
+
+ ansible --version
+ansible 2.9.10
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/devops/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Jun 11 2019, 14:33:56) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
+
+. Count how many modules are distrubuted with `ansible.2.9`
+ansible-doc -l | wc -l
+3387
+
+
+
+mkdir rhtr-lab
+         cd rhtr-lab
+. Install python3 
+
+. Create a virtual env
+
+python3 -m venv venv-ansible-2.10
+         source venv-ansible-2.10
+         source venv-ansible-2.10/bin/activate
+
+type ansible
+ansible is /bin/ansible
+
+
+In Ansible 2.10 going forward `ansible` has been broken into 2 constituent parts. These can be seen in the python packages `ansible-base` and `ansible`.
+
+
+ pip install ansible-base
+
+
+type ansible
+ansible is /home/devops/rhtr-lab/venv-ansible-2.10/bin/ansible
+
+ansible-doc -l | wc -l
+68
+
+Recall that ansible 2.9 had greater than 3,000 modules. 
+
+Re-run the above command but this time pipe to less to get a feel for what modules are in `ansible-base`
+
+
+ansible-doc -l | less
+
+An interesting mix of some Linux/UNIX centric modules, and some modules very core to actually running ansible itself e.g. `add_host`, `debug`, import_tasks`
+
+
+
+. Now use `pip` to install `ansible` to install the latest ansible 2.10
+
+pip install ansible==2.10 
+
+NOTE: Had `ansible-base` not been installed the pip install ansible command would have installed it as a dependency.
+
+Re-run the `ansible-doc -l | wc -l` - expect to see some depreciation warnings
+
+...
+[DEPRECATION WARNING]: See the plugin documentation for more details. This 
+feature will be removed from vyos.vyos in a release after 2022-06-01. 
+Deprecation warnings can be disabled by setting deprecation_warnings=False in 
+ansible.cfg.
+4429
+
+
+ - expect to see some depreciation warnings
+
+...
+[DEPRECATION WARNING]: See the plugin documentation for more details. This 
+feature will be removed from vyos.vyos in a release after 2022-06-01. 
+Deprecation warnings can be disabled by setting deprecation_warnings=False in 
+ansible.cfg.
+4429
+
+=== Getting started with Collections
+
+. In your current, `rhtr-lab` directory make a collections sub-directory
+
+
+Use the `ansible-galaxy` command to initialize your first collection
+
+ansible-galaxy collection init --init-path collections redhat.rhtr 
+
+
+Explore the resulting directory structure
+
+
+tree collections/
+collections/
+└── redhat
+    └── rhtr
+        ├── docs
+        ├── galaxy.yml
+        ├── plugins
+        │   └── README.md
+        ├── README.md
+        └── roles
+
+5 directories, 3 files
+
+// Add note this is an incomplete structure
+
+
+=== Make a project repo
+
+
+
+
+
+
+
+
+ansible all --list-hosts
+before we get started have a look at how many ansible modules are in the current ansible distribution
+
+ansible --version
+
+ansible-doc -l | wc -l
+
+
+Whilst we recommend the official Red Hat Networks RPMs for this lab we are going to create a python virtual environment and istall 2.10
+bit ny bit./
+
+
+yum/dnf 
+
+
+NOTE: Make sure you install `ansible-base` and not `ansible`, we will add that later.
+
+
+
+* Lets us have granular control of the 
+
+
+Create an empty role
+
+ mkdir -p collections/ansible_collections
+
+ansible-galaxy collection init --init-path collections/ansible_collections  rhtr.my_collection
+
+tree collections
+collections
+└── ansible_collections
+    └── rhtr
+        └── my_collection
+            ├── README.md
+            ├── docs
+            ├── galaxy.yml
+            ├── plugins
+            │   └── README.md
+            └── roles
+
+
+
+wget -O my_module.py https://bit.ly/ansible_module
+
+
+Now if run the `tree` command again you *won't* see a modules directory within your collection.
+You have to add that manually, the `collection` directory is sparse ands doesn't contain optional directories such as `roles`, `playbooks`, `plugins/modules` etc
+
+
+
+
+
+Do asnible.cfg
+
+ad-hoc
+
+ansible-doc
+
+
+ansible-galaxy collection install awx.awx
+ls collections
+ls collections/ansible_collections
+ls ~/.ansible/collections/ansible_collections/awx/awx/
+ls ~/.ansible/collections/ansible_collections/awx/awx/plugins/modules
+ansible localhost -m awx.awx.tower_host
+ansible-doc awx.awx.tower_host
+vim ansible.cfg
+ansible localhost -m rhtr.my_collection.my_module
+vim ansible.cfg
+ansible localhost -m rhtr.my_collection.my_module
+ansible-doc rhtr.my_collection.my_module
+vim main.yml
+ansible-doc rhtr.my_collection.my_module
+ansible localhost -m rhtr.my_collection.my_module
+ansible localhost -m rhtr.my_collection.my_module -a "data=ok"
+
+ 
+
+NOTE: Hacky developer trick, if you are developing a collection within a git repo on your laptop you can sym link it into your own default collections path.
+
+Try thi`
+``
+Part 2
+
+* Need a tower
+
+Install awx.awx
+
+
+
+== Bonus lab
+
+Entirely optional. That Tower job you 
+
+
+
+////
+
+TODO: 
+
+Cover
+
+Ansible Galaxy Site
+Ansible 2.10
+FQCNs
+
+* Give context e.g. users: # where does users come from?
+
+
+Nice to Have 
+
+Ansible 2.10
+virtualenvs
+
+////
